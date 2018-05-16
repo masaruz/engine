@@ -1,5 +1,7 @@
 package: engine
 import:
 - package: github.com/masaruz/engine-lib
+  subpackages:
+  - core
 - package: github.com/phayes/freeport
   version: ~1.0.2

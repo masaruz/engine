@@ -1,8 +1,10 @@
-hash: 16ad12d05080ee25cf43bd710fddc8f93e05c3ca5aef31265e2066edf029f500
-updated: 2018-05-16T13:51:17.6315+07:00
+hash: 76607531510946427ec197b80bb0421a6c75428eaca09268133ceeff8c67559f
+updated: 2018-05-16T18:00:13.156015+07:00
 imports:
 - name: github.com/masaruz/engine-lib
-  version: 53ae877bc5da077fd340adb3f8b61d47a80b9596
+  version: 4bcaf70d1553d58a44ae46599cdfebd3da465753
+  subpackages:
+  - core
 - name: github.com/phayes/freeport
   version: b8543db493a5ed890c5499e935e2cad7504f3a04
 testImports: []

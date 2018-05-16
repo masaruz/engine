@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"plugin"
 
-	"github.com/masaruz/engine-lib"
+	"github.com/masaruz/engine-lib/core"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 )
 
 // Get plugin symbol
-func Get(repo string) (lib.Game, error) {
+func Get(repo string) (core.Game, error) {
 	// Prepare plugin
 	execute(fmt.Sprintf("go get -d -v %s", repo))
 	execute(fmt.Sprintf("go build -buildmode=plugin -o $GOPATH/src/engine/%s $GOPATH/src/%s/main.go", file, repo))
@@ -42,7 +42,7 @@ func Get(repo string) (lib.Game, error) {
 	///////////////////////////////////////////////////////////////////
 	//////// 3. Assert that loaded symbol is of a desired type ////////
 	///////////////////////////////////////////////////////////////////
-	game, ok := sym.(lib.Game)
+	game, ok := sym.(core.Game)
 	if !ok {
 		return nil, fmt.Errorf("unexpected type from module symbol")
 	}

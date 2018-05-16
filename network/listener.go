@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/masaruz/engine-lib"
+	"github.com/masaruz/engine-lib/core"
 )
 
 // ListenAndServe requests
-func ListenAndServe(port int, game lib.Game) error {
+func ListenAndServe(port int, game core.Game) error {
 	// Lets prepare a address at any address at port 10001
 	ServerAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf(":%d", port))
 	if err != nil {

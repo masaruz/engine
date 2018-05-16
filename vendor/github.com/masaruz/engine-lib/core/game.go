@@ -1,4 +1,4 @@
-package lib
+package core
 
 // Form to comunicate with plugin
 type Form = struct {
