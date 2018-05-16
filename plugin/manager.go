@@ -17,7 +17,7 @@ const (
 // Get plugin symbol
 func Get(repo string) (core.Game, error) {
 	// Prepare plugin
-	execute(fmt.Sprintf("go get -d -v %s", repo))
+	execute(fmt.Sprintf("go get -d -v -u %s", repo))
 	execute(fmt.Sprintf("go build -buildmode=plugin -o $GOPATH/src/engine/%s $GOPATH/src/%s/main.go", file, repo))
 	////////////////////////////////////////////////////////
 	//////// 1. Open the so file to load the symbols ///////
