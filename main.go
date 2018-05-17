@@ -4,13 +4,19 @@ import (
 	"engine/network"
 	"engine/plugin"
 	"log"
+	"os"
 
 	"github.com/phayes/freeport"
 )
 
 func main() {
 	// get a free port
-	port, _ := freeport.GetFreePort()
+	var port int
+	if stage := os.Getenv("STAGE"); stage == "prd" {
+		port, _ = freeport.GetFreePort()
+	} else {
+		port = 3000
+	}
 
 	game, err := plugin.Get("github.com/masaruz/engine-bomberman")
 
