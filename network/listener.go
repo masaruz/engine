@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"log"
 	"net"
 
 	"github.com/masaruz/engine-lib/core"
@@ -31,25 +32,30 @@ func ListenAndServe(port int, game core.Game) error {
 	for _, a := range addrs {
 		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
-				fmt.Printf("Server is running at %s:%d\n", ipnet.IP.String(), port)
+				log.Printf("Server is running at %s:%d\n", ipnet.IP.String(), port)
 			}
 		}
 	}
 	// Waiting for requests
 	buf := make([]byte, 1024)
-	b := &Broadcast{Conn: ServerConn}
+	session := &Session{Conn: ServerConn}
 	for {
 		n, addr, err := ServerConn.ReadFromUDP(buf)
-		b.Join(addr)
+		// Regis client who send packet
+		session.Join(addr)
 		msg := buf[0:n]
-		fmt.Println("Received", string(msg), "from", addr, "length", n)
-		if err := game.Update(msg); err != nil {
+		log.Println("Received", string(msg), "from", addr, "length", n)
+		// Send update to game
+		// and receive acknowledge
+		if err := game.Update(msg, func(ack string) {
+			// do something ...
+		}); err != nil {
 			panic(err)
 		}
 		// Send back to client
-		b.Send(msg)
+		session.Send(msg)
 		if err != nil {
-			fmt.Println("Error: ", err)
+			log.Println("Error: ", err)
 		}
 	}
 }

@@ -1,47 +1,49 @@
 package network
 
 import (
+	"log"
 	"net"
 	"sync"
 )
 
-// Broadcast handle client's addresses
-type Broadcast struct {
+// Session handle client's addresses
+type Session struct {
 	c    map[string]*net.UDPAddr
 	m    sync.Mutex
 	Conn *net.UDPConn
 }
 
 // Join add client to map
-func (b *Broadcast) Join(addr *net.UDPAddr) error {
-	if b.c == nil {
-		b.c = make(map[string]*net.UDPAddr)
+func (s *Session) Join(addr *net.UDPAddr) error {
+	if s.c == nil {
+		s.c = make(map[string]*net.UDPAddr)
 	}
-	if b.c[addr.String()] == nil {
-		b.m.Lock()
-		b.c[addr.String()] = addr
-		b.m.Unlock()
+	if s.c[addr.String()] == nil {
+		s.m.Lock()
+		s.c[addr.String()] = addr
+		s.m.Unlock()
 	}
 	return nil
 }
 
 // Leave remove client from map
-func (b *Broadcast) Leave(addr *net.UDPAddr) error {
-	if b.c == nil {
-		b.c = make(map[string]*net.UDPAddr)
+func (s *Session) Leave(addr *net.UDPAddr) error {
+	if s.c == nil {
+		s.c = make(map[string]*net.UDPAddr)
 	}
-	if b.c[addr.String()] != nil {
-		b.m.Lock()
-		delete(b.c, addr.String())
-		b.m.Unlock()
+	if s.c[addr.String()] != nil {
+		s.m.Lock()
+		delete(s.c, addr.String())
+		s.m.Unlock()
 	}
 	return nil
 }
 
 // Send all message to client
-func (b *Broadcast) Send(payload []byte) error {
-	for addr := range b.c {
-		b.Conn.WriteToUDP(payload, b.c[addr])
+func (s *Session) Send(payload []byte) error {
+	for addr := range s.c {
+		log.Println("Send to", s.c[addr])
+		s.Conn.WriteToUDP(payload, s.c[addr])
 	}
 	return nil
 }
