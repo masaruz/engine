@@ -23,12 +23,12 @@ func ListenAndServe(port int, game core.Game) error {
 	}
 
 	defer ServerConn.Close()
-
+	// Get interface addresses in container
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return err
 	}
-
+	// Logging addresses
 	for _, a := range addrs {
 		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
@@ -41,6 +41,9 @@ func ListenAndServe(port int, game core.Game) error {
 	session := &Session{Conn: ServerConn}
 	for {
 		n, addr, err := ServerConn.ReadFromUDP(buf)
+		if err != nil {
+			panic(err)
+		}
 		// Regis client who send packet
 		session.Join(addr)
 		msg := buf[0:n]
@@ -50,12 +53,9 @@ func ListenAndServe(port int, game core.Game) error {
 		if err := game.Update(msg, func(ack string) {
 			// do something ...
 		}); err != nil {
-			panic(err)
-		}
-		// Send back to client
-		session.Send(msg)
-		if err != nil {
 			log.Println("Error: ", err)
 		}
+		// Send back to client
+		session.Send(game.GetState())
 	}
 }
