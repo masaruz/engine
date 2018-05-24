@@ -12,10 +12,10 @@ import (
 func main() {
 	// get a free port
 	var port int
-	if stage := os.Getenv("STAGE"); stage == "prd" {
-		port, _ = freeport.GetFreePort()
-	} else {
+	if stage := os.Getenv("STAGE"); stage == "dev" {
 		port = 3000
+	} else {
+		port, _ = freeport.GetFreePort()
 	}
 
 	game, err := plugin.Get("github.com/masaruz/engine-bomberman")
