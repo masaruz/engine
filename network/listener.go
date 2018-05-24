@@ -32,22 +32,30 @@ func ListenAndServe(port int, game core.Game) error {
 	for _, a := range addrs {
 		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
-				log.Printf("Server is running at %s:%d\n", ipnet.IP.String(), port)
+				fmt.Printf("Server is running at %s:%d\n", ipnet.IP.String(), port)
 			}
 		}
 	}
 	// Waiting for requests
 	buf := make([]byte, 1024)
-	session := &Session{Conn: ServerConn}
+	session := CreateSession(ServerConn)
 	for {
 		n, addr, err := ServerConn.ReadFromUDP(buf)
 		if err != nil {
 			panic(err)
 		}
-		// Regis client who send packet
-		session.Join(addr)
 		msg := buf[0:n]
-		log.Println("Received", string(msg), "from", addr, "length", n)
+
+		// Check if addr is already joined session
+		// Register client who send packet
+		session.Join(addr)
+
+		// TODO ...
+		// If msg is acknowledge message
+		if false {
+			session.ACK("packetID")
+		}
+		fmt.Println("Received", string(msg), "from", addr, "length", n)
 		// Send update to game
 		// and receive acknowledge
 		if err := game.Update(msg, func(ack string) {
