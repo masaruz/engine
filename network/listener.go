@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 
+	"github.com/masaruz/engine-lib/common"
 	"github.com/masaruz/engine-lib/core"
 )
 
@@ -24,18 +25,7 @@ func ListenAndServe(port int, game core.Game) error {
 
 	defer ServerConn.Close()
 	// Get interface addresses in container
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return err
-	}
-	// Logging addresses
-	for _, a := range addrs {
-		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				fmt.Printf("Server is running at %s:%d\n", ipnet.IP.String(), port)
-			}
-		}
-	}
+	fmt.Printf("Server is running at port: %d\n", port)
 	// Waiting for requests
 	buf := make([]byte, 1024)
 	session := CreateSession(ServerConn)
@@ -54,16 +44,18 @@ func ListenAndServe(port int, game core.Game) error {
 		// If msg is acknowledge message
 		if false {
 			session.ACK("packetID")
+			common.Print("Received acknowledge", string(msg), "from", addr)
+		} else {
+			common.Print("Received", string(msg), "from", addr)
+			// Send update to game
+			// and receive acknowledge
+			if err := game.Update(msg, func(ack string) {
+				// do something ...
+			}); err != nil {
+				log.Println("Error: ", err)
+			}
+			// Send back to client
+			session.Send(game.GetState())
 		}
-		fmt.Println("Received", string(msg), "from", addr, "length", n)
-		// Send update to game
-		// and receive acknowledge
-		if err := game.Update(msg, func(ack string) {
-			// do something ...
-		}); err != nil {
-			log.Println("Error: ", err)
-		}
-		// Send back to client
-		session.Send(game.GetState())
 	}
 }
