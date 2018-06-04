@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -16,18 +15,18 @@ const (
 )
 
 // Get plugin symbol
-func Get(repo string, tag string, local bool) (core.Game, error) {
+func Get(repo string, version string, local bool) (core.Game, error) {
 	// Prepare plugin
 	// Use local package when need to test game logical
 	// If package being edited go get will error because of git
 	// Otherwise it will re-download the package from github
-	if local {
+	if !local {
 		runcmd(fmt.Sprintf("go get -d -v -u %s", repo))
 	}
 	// Able to change version of package based on git
-	// If no tag the latest version of package
-	if tag != "" {
-		runcmd(fmt.Sprintf("git -C $GOPATH/src/github.com/masaruz/engine-bomberman checkout tags/%s", tag))
+	// If no version the latest version of package
+	if version != "" {
+		runcmd(fmt.Sprintf("git -C $GOPATH/src/github.com/masaruz/engine-bomberman checkout %s", version))
 	}
 	runcmd(fmt.Sprintf("go build -buildmode=plugin -o $GOPATH/src/engine/%s $GOPATH/src/%s/main.go", file, repo))
 	////////////////////////////////////////////////////////
@@ -65,7 +64,7 @@ func Get(repo string, tag string, local bool) (core.Game, error) {
 func runcmd(cmd string) []byte {
 	out, err := exec.Command("bash", "-c", cmd).Output()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	return out
 }

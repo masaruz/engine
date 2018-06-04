@@ -20,7 +20,7 @@ func main() {
 
 	game, err := plugin.Get(
 		"github.com/masaruz/engine-bomberman",
-		os.Getenv("TAG"),
+		os.Getenv("VERSION"),
 		os.Getenv("LOCAL_PACKAGE") == "")
 
 	if err != nil {
