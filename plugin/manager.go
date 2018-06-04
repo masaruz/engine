@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -15,10 +16,20 @@ const (
 )
 
 // Get plugin symbol
-func Get(repo string) (core.Game, error) {
+func Get(repo string, tag string, local bool) (core.Game, error) {
 	// Prepare plugin
-	execute(fmt.Sprintf("go get -d -v -u %s", repo))
-	execute(fmt.Sprintf("go build -buildmode=plugin -o $GOPATH/src/engine/%s $GOPATH/src/%s/main.go", file, repo))
+	// Use local package when need to test game logical
+	// If package being edited go get will error because of git
+	// Otherwise it will re-download the package from github
+	if local {
+		runcmd(fmt.Sprintf("go get -d -v -u %s", repo))
+	}
+	// Able to change version of package based on git
+	// If no tag the latest version of package
+	if tag != "" {
+		runcmd(fmt.Sprintf("git -C $GOPATH/src/github.com/masaruz/engine-bomberman checkout tags/%s", tag))
+	}
+	runcmd(fmt.Sprintf("go build -buildmode=plugin -o $GOPATH/src/engine/%s $GOPATH/src/%s/main.go", file, repo))
 	////////////////////////////////////////////////////////
 	//////// 1. Open the so file to load the symbols ///////
 	////////////////////////////////////////////////////////
@@ -51,8 +62,10 @@ func Get(repo string) (core.Game, error) {
 	return game, nil
 }
 
-func execute(cmd string) {
-	if _, err := exec.Command("bash", "-c", cmd).Output(); err != nil {
-		panic(fmt.Sprintf("Failed to execute command: %s", cmd))
+func runcmd(cmd string) []byte {
+	out, err := exec.Command("bash", "-c", cmd).Output()
+	if err != nil {
+		log.Fatal(err)
 	}
+	return out
 }
